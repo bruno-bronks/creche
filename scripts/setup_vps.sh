@@ -25,7 +25,7 @@ fi
 echo "Step 3: Configuring Nginx..."
 cat <<EOF > $NGINX_CONF
 server {
-    listen 80;
+    listen 5500;
     server_name 148.230.79.134;
 
     root $APP_DIR;
@@ -53,5 +53,5 @@ nginx -t && systemctl restart nginx
 
 echo "------------------------------------------------"
 echo "Deployment Complete!"
-echo "You can access the system at: http://148.230.79.134"
+echo "You can access the system at: http://148.230.79.134:5500"
 echo "------------------------------------------------"
