@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+.env
+dist/
+build/
+.next/
+*.log
+.vscode/
+.idea/
+.agents/
+.gemini/
+.firebase/

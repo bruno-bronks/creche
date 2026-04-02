@@ -1,0 +1,136 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSchoolScope(schoolId) {
+      return schoolId == "creche-5900b";
+    }
+
+    function userDoc(schoolId) {
+      return /databases/$(database)/documents/schools/$(schoolId)/users/$(request.auth.uid);
+    }
+
+    function metaDoc(schoolId) {
+      return /databases/$(database)/documents/schools/$(schoolId)/system/meta;
+    }
+
+    function inviteDoc(schoolId, code) {
+      return /databases/$(database)/documents/schools/$(schoolId)/invites/$(code);
+    }
+
+    function isSuperAdmin(schoolId) {
+      return isSignedIn()
+        && isSchoolScope(schoolId)
+        && request.auth.token.email == "admin@bronks.ia.br";
+    }
+
+    function hasRole(schoolId, role) {
+      return isSuperAdmin(schoolId)
+        || (
+          isSignedIn()
+          && exists(userDoc(schoolId))
+          && get(userDoc(schoolId)).data.role == role
+        );
+    }
+
+    function validRole(role) {
+      return role in ["direcao", "secretaria", "financeiro"];
+    }
+
+    function bootstrapAllowed(schoolId) {
+      return isSignedIn()
+        && isSchoolScope(schoolId)
+        && (
+          !exists(metaDoc(schoolId))
+          || get(metaDoc(schoolId)).data.bootstrapCompleted != true
+        )
+        && request.auth.token.email == "admin@bronks.ia.br";
+    }
+
+    function inviteAllowed(schoolId) {
+      return request.resource.data.inviteCode is string
+        && request.resource.data.inviteCode != ""
+        && exists(inviteDoc(schoolId, request.resource.data.inviteCode))
+        && get(inviteDoc(schoolId, request.resource.data.inviteCode)).data.status == "Ativo"
+        && get(inviteDoc(schoolId, request.resource.data.inviteCode)).data.email == request.auth.token.email
+        && get(inviteDoc(schoolId, request.resource.data.inviteCode)).data.role == request.resource.data.role;
+    }
+
+    match /schools/{schoolId} {
+      allow read, write: if false;
+
+      match /system/{document=**} {
+        allow read: if isSignedIn() && isSchoolScope(schoolId);
+        allow write: if isSignedIn() && isSchoolScope(schoolId)
+          && (hasRole(schoolId, "direcao") || bootstrapAllowed(schoolId));
+      }
+
+      match /users/{userId} {
+        allow read: if isSignedIn()
+          && isSchoolScope(schoolId)
+          && (request.auth.uid == userId || hasRole(schoolId, "direcao"));
+
+        allow create: if isSignedIn()
+          && isSchoolScope(schoolId)
+          && request.auth.uid == userId
+          && request.resource.data.email == request.auth.token.email
+          && validRole(request.resource.data.role)
+          && (
+            (bootstrapAllowed(schoolId) && request.resource.data.role == "direcao")
+            || inviteAllowed(schoolId)
+          );
+
+        allow update, delete: if isSignedIn()
+          && isSchoolScope(schoolId)
+          && hasRole(schoolId, "direcao");
+      }
+
+      match /invites/{inviteCode} {
+        allow read: if isSignedIn()
+          && isSchoolScope(schoolId)
+          && hasRole(schoolId, "direcao");
+
+        allow create, update, delete: if isSignedIn()
+          && isSchoolScope(schoolId)
+          && hasRole(schoolId, "direcao");
+      }
+
+      match /{module}/{document} {
+        allow read, write: if isSignedIn()
+          && isSchoolScope(schoolId)
+          && module in [
+            "students",
+            "staff",
+            "tuition",
+            "delinquency",
+            "extras",
+            "receivables",
+            "payables",
+            "taxes",
+            "reportCards",
+            "classes",
+            "profiles",
+            "diary",
+            "attendance",
+            "health",
+            "incidents"
+          ]
+          && (
+            hasRole(schoolId, "direcao")
+            || (
+              hasRole(schoolId, "secretaria")
+              && module in ["students", "classes", "reportCards", "profiles", "staff", "diary", "attendance", "health", "incidents"]
+            )
+            || (
+              hasRole(schoolId, "financeiro")
+              && module in ["tuition", "delinquency", "extras", "receivables", "payables", "taxes", "profiles"]
+            )
+          );
+      }
+    }
+  }
+}
