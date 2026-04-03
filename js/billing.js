@@ -40,8 +40,9 @@ window.crecheBilling = {
       createdCount++;
     }
 
-    // Refresh data
-    await window.crecheStore.init();
+    // Refresh data with current permissions
+    const currentRole = window.crecheStore.data.activeProfileId || "direcao";
+    await window.crecheStore.init(null); // Refreshes all data
     
     return { createdCount, skippedCount };
   }

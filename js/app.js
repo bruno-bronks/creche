@@ -250,6 +250,7 @@ const state = {
   search: "",
   editingId: null,
   loading: false,
+  isInitializing: false,
   sync: {
     enabled: false,
     authenticated: false,
@@ -1560,20 +1561,28 @@ function render() {
 }
 
 async function bootstrap() {
+  if (state.isInitializing) return;
+  state.isInitializing = true;
+
   try {
     console.log("Creche ERP: Iniciando interface...");
     attachToolbar(); // Ativa os botões primeiro para o login funcionar
     
-    // Tenta carregar dados, mas não trava se falhar (ex: sem login)
+    // Tenta carregar dados iniciais (Local ou Firebase se já logado)
     if (window.crecheStore) {
-      await window.crecheStore.init(rolePermissions[state.sync.role || "direcao"]).catch(err => console.warn("Aguardando login para carregar dados."));
+      const role = state.sync.role || "direcao";
+      await window.crecheStore.init(rolePermissions[role]).catch(err => {
+        console.warn("Aguardando login ou conexão para carregar dados completos.");
+      });
     }
     
     render();
     console.log("Creche ERP: Pronto.");
   } catch (error) {
     console.error("Erro no bootstrap:", error);
-    render(); // Tenta renderizar o que for possível (geralmente a tela de login)
+    render(); 
+  } finally {
+    state.isInitializing = false;
   }
 }
 
