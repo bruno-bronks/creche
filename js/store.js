@@ -1,3 +1,10 @@
+function generateId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "id-" + Math.random().toString(36).substring(2, 11) + "-" + Date.now().toString(36);
+}
+
 const seedData = {
   profiles: [
     {
@@ -21,7 +28,7 @@ const seedData = {
   activeProfileId: "direcao",
   classes: [
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       nome: "Bercario Sol",
       etapa: "Bercario",
       turno: "Integral",
@@ -30,7 +37,7 @@ const seedData = {
       status: "Ativa"
     },
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       nome: "Pre 2 Lua",
       etapa: "Pre 2",
       turno: "Manha",
@@ -41,7 +48,7 @@ const seedData = {
   ],
   students: [
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       nome: "Helena Rocha",
       turma: "Bercario",
       responsavel: "Ana Rocha",
@@ -49,7 +56,7 @@ const seedData = {
       status: "Ativo"
     },
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       nome: "Theo Martins",
       turma: "Pre 2",
       responsavel: "Carlos Martins",
@@ -59,7 +66,7 @@ const seedData = {
   ],
   staff: [
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       nome: "Juliana Costa",
       cargo: "Coordenadora",
       departamento: "Pedagogico",
@@ -67,7 +74,7 @@ const seedData = {
       status: "Ativo"
     },
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       nome: "Marcio Nunes",
       cargo: "Auxiliar",
       departamento: "Operacional",
@@ -77,7 +84,7 @@ const seedData = {
   ],
   tuition: [
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       aluno: "Helena Rocha",
       referencia: "2026-03",
       valor: 1450,
@@ -86,7 +93,7 @@ const seedData = {
       status: "Pago"
     },
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       aluno: "Theo Martins",
       referencia: "2026-03",
       valor: 1320,
@@ -97,7 +104,7 @@ const seedData = {
   ],
   extras: [
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       atividade: "Musicalizacao",
       aluno: "Theo Martins",
       professor: "Lia Prado",
@@ -107,7 +114,7 @@ const seedData = {
   ],
   delinquency: [
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       aluno: "Theo Martins",
       responsavel: "Carlos Martins",
       referencia: "2026-03",
@@ -118,7 +125,7 @@ const seedData = {
   ],
   receivables: [
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       descricao: "Mensalidade Theo Martins",
       categoria: "Mensalidade",
       valor: 1320,
@@ -126,7 +133,7 @@ const seedData = {
       status: "Vencido"
     },
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       descricao: "Mensalidade Helena Rocha",
       categoria: "Mensalidade",
       valor: 1450,
@@ -136,7 +143,7 @@ const seedData = {
   ],
   payables: [
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       descricao: "Fornecedor de alimentos",
       categoria: "Suprimentos",
       valor: 980,
@@ -146,7 +153,7 @@ const seedData = {
   ],
   taxes: [
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       imposto: "ISS",
       competencia: "2026-03",
       valor: 320,
@@ -156,7 +163,7 @@ const seedData = {
   ],
   reportCards: [
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       aluno: "Theo Martins",
       turma: "Pre 2",
       periodo: "1o Bimestre",
@@ -261,7 +268,7 @@ window.crecheStore = {
   },
 
   async create(moduleKey, payload) {
-    this.data[moduleKey].unshift({ id: crypto.randomUUID(), ...payload });
+    this.data[moduleKey].unshift({ id: generateId(), ...payload });
     await this.persist();
   },
 
