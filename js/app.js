@@ -1592,7 +1592,9 @@ window.addEventListener("creche:firebase-ready", async (event) => {
   if (state.sync.enabled) {
     const profile = await window.crecheFirebaseBridge.loadCurrentUserProfile();
     state.sync.role = profile?.role || "direcao";
-    await window.crecheStore.init(rolePermissions[state.sync.role]);
+    if (window.crecheStore) {
+      await window.crecheStore.init(rolePermissions[state.sync.role]);
+    }
     render();
   } else {
     renderSyncStatus();
@@ -1604,7 +1606,7 @@ window.addEventListener("creche:firebase-status", (event) => {
     ...state.sync,
     ...event.detail
   };
-  if (state.sync.role) {
+  if (state.sync.role && window.crecheStore) {
     window.crecheStore.data.activeProfileId = state.sync.role;
   }
   if (state.sync.authenticated) {

@@ -1,3 +1,5 @@
+console.log("Creche Store: Sistema de persistência carregado (v2.1 - Fix: UUID Fallback)");
+
 function generateId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
