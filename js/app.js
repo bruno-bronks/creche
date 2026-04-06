@@ -1140,6 +1140,8 @@ function renderHeader() {
 
   if (!header || !module) return;
 
+  const isDashboard = state.currentModule === "dashboard" && !state.search && !state.editingId;
+
   if (isDashboard) {
     header.classList.add("header-dashboard");
     header.innerHTML = `
