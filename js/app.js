@@ -1084,7 +1084,13 @@ function renderForm() {
         await window.crecheFirebaseBridge.issueInvite(payload.email, payload.role, payload.code);
       } else if (state.currentModule === "users" && window.crecheFirebaseBridge?.assignUserRole) {
         const current = currentRecord();
-        if (current?.id) await window.crecheFirebaseBridge.assignUserRole(current.id, payload.role);
+        const userId = current?.id || state.editingId;
+        if (!userId) {
+          setFeedback("module-feedback", "Nenhum usuario selecionado para atualizar.", "error");
+          return;
+        }
+        await window.crecheFirebaseBridge.assignUserRole(userId, payload.role);
+        setFeedback("module-feedback", "Perfil atualizado com sucesso.");
       } else if (state.editingId) {
         await window.crecheStore.update(state.currentModule, state.editingId, payload);
       } else {
