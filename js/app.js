@@ -1074,7 +1074,7 @@ function renderForm() {
     });
 
     if (firstInvalid) {
-      setFeedback("module-feedback", firstInvalid, "error");
+      setFeedback("module-feedback-slide", firstInvalid, "error");
       return;
     }
 
@@ -1086,11 +1086,11 @@ function renderForm() {
         const current = currentRecord();
         const userId = current?.id || state.editingId;
         if (!userId) {
-          setFeedback("module-feedback", "Nenhum usuario selecionado para atualizar.", "error");
+          setFeedback("module-feedback-slide", "Nenhum usuario selecionado para atualizar.", "error");
           return;
         }
         await window.crecheFirebaseBridge.assignUserRole(userId, payload.role);
-        setFeedback("module-feedback", "Perfil atualizado com sucesso.");
+        setFeedback("module-feedback-slide", "Perfil atualizado com sucesso.");
       } else if (state.editingId) {
         await window.crecheStore.update(state.currentModule, state.editingId, payload);
       } else {
@@ -1102,7 +1102,7 @@ function renderForm() {
       toggleSlideOver(false);
       render();
     } catch (error) {
-      setFeedback("module-feedback", errorMessage(error), "error");
+      setFeedback("module-feedback-slide", errorMessage(error), "error");
     } finally {
       setLoading(false);
     }
@@ -1165,9 +1165,11 @@ function renderHeader() {
           <h2>${module.label}</h2>
         </div>
         <div class="header-actions">
+          ${state.currentModule !== "users" ? `
           <button type="button" id="new-record-btn-top" class="btn-primary shadow-sm">
             <span>+</span> Novo Registro
           </button>
+          ` : ""}
         </div>
       </div>
     `;
