@@ -206,7 +206,7 @@ const modules = {
     columns: ["imposto", "competencia", "valor", "vencimento", "status"]
   },
   reportCards: {
-    label: "Boletins",
+    label: "Relatórios",
     description: "Acompanhamento pedagogico por periodo e publicacao para familias.",
     tableDescription: "Registros descritivos do desenvolvimento infantil.",
     fields: [
