@@ -174,7 +174,9 @@ const seedData = {
     }
   ],
   diary: [],
-  attendance: []
+  attendance: [],
+  health: [],
+  incidents: []
 };
 
 class LocalAdapter {

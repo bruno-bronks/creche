@@ -360,15 +360,11 @@ function isValidCPF(cpf) {
 
 function applyMasks(form) {
   const phoneFields = form.querySelectorAll('input[name*="telefone"], input[name*="celular"]');
-  const moneyFields = form.querySelectorAll('input[name*="valor"]');
   const cpfFields = form.querySelectorAll('input[name*="cpf"]');
   const cepFields = form.querySelectorAll('input[name*="cep"]');
 
   phoneFields.forEach(f => {
     f.addEventListener("input", (e) => e.target.value = masks.phone(e.target.value));
-  });
-  moneyFields.forEach(f => {
-    f.addEventListener("input", (e) => e.target.value = masks.money(e.target.value));
   });
   cpfFields.forEach(f => {
     f.addEventListener("input", (e) => e.target.value = masks.cpf(e.target.value));
@@ -494,7 +490,6 @@ function activeProfile() {
 function metricCards(data) {
   const alunos = data.students.length;
   const turmas = data.classes.filter((item) => item.status === "Ativa").length;
-  const funcionarios = data.staff.filter((item) => item.status === "Ativo").length;
   const receitaAberta = data.receivables.filter((item) => item.status !== "Recebido").reduce((sum, item) => sum + Number(item.valor), 0);
   const despesasAbertas = data.payables.filter((item) => item.status !== "Pago").reduce((sum, item) => sum + Number(item.valor), 0);
   const inadimplentes = data.delinquency.filter((item) => item.status !== "Quitado").length;
@@ -810,7 +805,7 @@ function renderAuthStatus() {
   
   const welcomeSection = document.querySelector("#welcome-section");
   const userFullname = document.querySelector("#user-fullname");
-  const userPhoto = document.querySelector("#user-photo");
+  const userPhoto = document.querySelector("#user-avatar");
   const logoutBtnTop = document.querySelector("#logout-button-top");
 
   if (state.sync.authenticated) {
@@ -1489,21 +1484,24 @@ function attachToolbar() {
     });
   }
 
-  const logoutBtnTop = document.querySelector("#logout-button-top");
-  if (logoutBtnTop) {
-    logoutBtnTop.addEventListener("click", async () => {
-      if (!window.crecheFirebaseBridge) return;
-      try {
-        setLoading(true);
-        await window.crecheFirebaseBridge.signOut();
-        render();
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    });
+  async function handleLogout() {
+    if (!window.crecheFirebaseBridge) return;
+    try {
+      setLoading(true);
+      await window.crecheFirebaseBridge.signOut();
+      render();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }
+
+  const logoutBtnTop = document.querySelector("#logout-button-top");
+  if (logoutBtnTop) logoutBtnTop.addEventListener("click", handleLogout);
+
+  const logoutBtnBottom = document.querySelector("#logout-button-bottom");
+  if (logoutBtnBottom) logoutBtnBottom.addEventListener("click", handleLogout);
 
   const newRecordBtn = document.querySelector("#new-record-btn");
   if (newRecordBtn) {
@@ -1581,7 +1579,7 @@ async function bootstrap() {
     // Tenta carregar dados iniciais (Local ou Firebase se já logado)
     if (window.crecheStore) {
       const role = state.sync.role || "direcao";
-      await window.crecheStore.init(rolePermissions[role]).catch(err => {
+      await window.crecheStore.init(rolePermissions[role]).catch(() => {
         console.warn("Aguardando login ou conexão para carregar dados completos.");
       });
     }
